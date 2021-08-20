@@ -1,4 +1,4 @@
-const apollo = require('./handlers/apollo')
+const {handler: apollo, createServer } = require('./handlers/apollo')
 const playground = require('./handlers/playground')
 const setCors = require('./utils/setCors')
 
@@ -34,14 +34,20 @@ const graphQLOptions = {
   kvCache: false,
 }
 
+let server
+
 const handleRequest = async request => {
+  if(!server) {
+    server = createServer(graphQLOptions)
+  }
+
   const url = new URL(request.url)
   try {
     if (url.pathname === graphQLOptions.baseEndpoint) {
       const response =
         request.method === 'OPTIONS'
           ? new Response('', { status: 204 })
-          : await apollo(request, graphQLOptions)
+          : await apollo(request, server)
       if (graphQLOptions.cors) {
         setCors(response, graphQLOptions.cors)
       }

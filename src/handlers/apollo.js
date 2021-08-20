@@ -21,9 +21,11 @@ const createServer = graphQLOptions =>
     ...(graphQLOptions.kvCache ? kvCache : {}),
   })
 
-const handler = (request, graphQLOptions) => {
-  const server = createServer(graphQLOptions)
+const handler = (request, server) => {
   return graphqlCloudflare(() => server.createGraphQLServerOptions(request))(request)
 }
 
-module.exports = handler
+module.exports = {
+  handler,
+  createServer
+}
